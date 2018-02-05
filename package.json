@@ -1,0 +1,19 @@
+{
+  "name": "ffmpeg-api",
+  "version": "1.0.0",
+  "description": "REST API that converts .m4a and .mp3 files to .mp3 128kbps using ffmpeg. Built for deployment to Heroku.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sander Schekman",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.14.12"
+  },
+  "dependencies": {
+    "express": "^4.16.2",
+    "express-fileupload": "^0.4.0"
+  }
+}
