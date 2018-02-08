@@ -1,4 +1,4 @@
-This is a small REST API built using nodejs and express. It takes a post request with an audiofile which will then convert the received file to 128kbps and upload it to AWS S3. After this it will return an object containing the URL to the converted file on S3. Meant for deployment to Heroku (requires manual install of (ffmpeg buidlpack)[https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest]).
+This is a small REST API built using nodejs and express. It takes a post request with an audiofile which will then convert the received file to 128kbps and upload it to AWS S3. After this it will return an object containing the URL to the converted file on S3. Meant for deployment to Heroku (requires manual install of [ffmpeg buildpack](https://github.com/jonathanong/heroku-buildpack-ffmpeg-latest)).
 
 The following enviroment variables should be set:
 
