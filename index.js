@@ -1,5 +1,5 @@
 const express = require('express'),
-    //   Promise = require('promise'),
+      ffmpeg = require('fluent-ffmpeg'),
       path = require('path'),
       fileUpload = require('express-fileupload'),
       fs = require('fs'),
@@ -46,16 +46,38 @@ app.listen(port, () => {
 
         let secondProm = function(obj) {
             return new Promise(function(resolve, reject) {
-                res.sendFile(path.join(__dirname, '/', obj.filename + '_original.' + obj.extension), function() {
-                    fs.unlinkSync(obj.filename + '_original.' + obj.extension);
-                    resolve(obj);
-                });                
+                ffmpeg(obj.filename + '_original.' + obj.extension)
+                .audioBitrate('128')
+                .toFormat('mp3')
+                .on('error', function (err) {
+                    return res.status(500).send(err);
+                    console.log('An error occurred: ' + err.message);
+                })
+                .on('progress', function (progress) {
+                    // console.log(JSON.stringify(progress));
+                    console.log('Processing: ' + progress.targetSize + ' KB converted');
+                })
+                .on('end', function () {
+                    console.log('Processing finished !');
+                    resolve(obj);                    
+                })
+                .save('./hello.mp3')//path where you want to save your file
+
+                // res.sendFile(path.join(__dirname, '/', obj.filename + '_original.' + obj.extension), function() {
+                //     fs.unlinkSync(obj.filename + '_original.' + obj.extension);
+                //     resolve(obj);
+                // });
+                
             });
         };
 
         let thirdProm = function(obj) {
             return new Promise(function(resolve, reject) {
-                resolve(obj);
+                res.sendFile(path.join(__dirname, '/',  'hello.mp3'), function() {
+                    fs.unlinkSync(obj.filename + '_original.' + obj.extension);
+                    fs.unlinkSync('hello.mp3');                    
+                    resolve(obj);
+                });
             });
         };
 
