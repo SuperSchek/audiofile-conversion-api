@@ -2,6 +2,7 @@ const express = require('express'),
     //   Promise = require('promise'),
       path = require('path'),
       fileUpload = require('express-fileupload'),
+      fs = require('fs'),
       app = express(),
       port = process.env.PORT || 3000;
 
@@ -9,32 +10,102 @@ const express = require('express'),
 app.use(fileUpload());
 
 app.listen(port, () => {
-    console.log('RESTful API server started on: ' + port);
+    console.log('API is running on: ' + port);
 
     app.post('/upload', (req, res) => {
-        // Check for files
-        if (!req.files)
-            return res.status(400).send('No files were uploaded.');
-
-        const submitted_file = req.files.audio;
-        const extension = submitted_file.name.split('.').pop();
-        const filename = (req.body.category + '_' + req.body.name).replace(/\s/g, '');
-
-        function upload() {
+        let getFile = function(data) {
+            console.log('getFile');
             return new Promise(function(resolve, reject) {
-                submitted_file.mv(filename + '.' + extension, function(err) {
-                    if (err)
-                        return res.status(500).send(err);
-                    resolve();                        
-                    console.log('File uploaded');
-                });
-            });
-        }
-        
-        upload().then(function() {
-            // res.sendFile("./Review_Molly'sGame.mp3");
-            res.sendFile(path.join(__dirname, '/', filename + '.' + extension));
-        });
+                if (!req.files)
+                    return res.status(400).send('No files were uploaded.');
+                
+                let podcast = new Object();
 
+                const submitted_file = req.files.audio;
+                podcast.extension = submitted_file.name.split('.').pop();
+                podcast.filename = (req.body.category + '_' + req.body.name).replace(/\s/g, '');
+
+                let moveFile = function(obj) {
+                    return new Promise(function(resolve, reject) {
+                        submitted_file.mv(podcast.filename + '_original.' + podcast.extension, function(err) {
+                            if (err)
+                                return res.status(500).send(err);
+
+                            // res.send('File uploaded');
+                            resolve(podcast);
+                        });
+                    });
+                };
+            
+                moveFile().then(function(obj) {                  
+                    return resolve(obj);
+                })
+
+            });
+        };
+
+        let secondProm = function(obj) {
+            return new Promise(function(resolve, reject) {
+                res.sendFile(path.join(__dirname, '/', obj.filename + '_original.' + obj.extension), function() {
+                    fs.unlinkSync(obj.filename + '_original.' + obj.extension);
+                    resolve(obj);
+                });                
+            });
+        };
+
+        let thirdProm = function(obj) {
+            return new Promise(function(resolve, reject) {
+                resolve(obj);
+            });
+        };
+
+        getFile().then(function(result) {
+            return secondProm(result);
+        }).then(function(result) {
+            return thirdProm(result);
+        }).then(function(obj) {
+            console.log("Done: Sending file now!");
+            console.log(obj);
+            console.log('sent');
+        });
     });
+
+    // app.post('/upload', (req, res) => {
+    //     // Check for files
+    //     if (!req.files)
+    //         return res.status(400).send('No files were uploaded.');
+
+    //     const submitted_file = req.files.audio;
+    //     const extension = submitted_file.name.split('.').pop();
+    //     const filename = (req.body.category + '_' + req.body.name).replace(/\s/g, '');
+
+    //     function upload() {
+    //         return new Promise(function(resolve, reject) {
+    //             submitted_file.mv(filename + '.' + extension, function(err) {
+    //                 if (err)
+    //                     return res.status(500).send(err);
+    //                 // res.send('File uploaded');
+    //                 console.log('uploaded');
+    //                 resolve();
+    //             });
+    //         });
+    //     }
+
+    //     function postFile() {
+    //         return new Promise(function(resolve, reject) {
+    //             res.sendFile(path.join(__dirname, '/', filename + '.' + extension));
+    //             console.log('sent');
+    //             resolve();
+    //         });
+    //     };
+        
+    //     upload().then(function() {
+    //         // res.sendFile("./Review_Molly'sGame.mp3");
+    //         postFile().then(function() {
+    //             console.log('deleting');
+    //             fs.unlinkSync(filename + '.' + extension);
+    //         });
+    //     });
+
+    // });
 });
