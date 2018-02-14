@@ -27,12 +27,12 @@ app.listen(port, () => {
             return new Promise(function(resolve, reject) {
                 if (!req.files)
                     return res.status(400).send('No files were uploaded.');
-                
+
                 let podcast = new Object();
 
                 const submitted_file = req.files.audio;
                 podcast.extension = submitted_file.name.split('.').pop();
-                podcast.filename = (req.body.category + '_' + req.body.name).replace(/[\s':|,;!&]/g, ''); //Remove any spaces, comma's or colons from filename.
+                podcast.filename = (req.body.category + '_' + req.body.name).replace(/[\s':#|,;!&]/g, ''); //Remove any spaces, comma's or colons from filename.
 
                 let moveFile = function(obj) {
                     return new Promise(function(resolve, reject) {
@@ -44,7 +44,7 @@ app.listen(port, () => {
                         });
                     });
                 };
-            
+
                 moveFile().then(function(obj) {
                     console.log('File received.');
                     return resolve(obj);
@@ -70,7 +70,7 @@ app.listen(port, () => {
                 })
                 .on('end', function () {
                     console.log('Processing finished.');
-                    resolve(obj);                    
+                    resolve(obj);
                 })
                 .save(obj.filename + '.mp3')//path where you want to save your file
             });
@@ -80,7 +80,7 @@ app.listen(port, () => {
         let deleteOriginal = function(obj) {
             return new Promise(function(resolve, reject) {
                 fs.unlinkSync(obj.filename + '_original.' + obj.extension);
-                resolve(obj);               
+                resolve(obj);
             });
         };
 
@@ -93,7 +93,7 @@ app.listen(port, () => {
         });
 
         function uploadToS3(obj) {
-            console.log("Uploading " + obj.filename + ".mp3 to AWS S3!");            
+            console.log("Uploading " + obj.filename + ".mp3 to AWS S3!");
             let s3bucket = new AWS.S3({
                 accessKeyId: AWS_S3_USER_KEY,
                 secretAccessKey: AWS_S3_USER_SECRET,
@@ -113,18 +113,18 @@ app.listen(port, () => {
                     s3bucket.upload(params, function(err, data) {
                         if (err)
                             console.error(err);
-                        
+
                         obj.s3_url = data.Location;
                         obj.message = 'Succesfully converted and uploaded ' + obj.filename + '.mp3 to AWS S3.'
                         console.log('Succesfully uploaded ' + obj.filename + '.mp3 to S3!');
-            
+
                         res.status(200).send(obj);
                         fs.unlinkSync(obj.filename + '.mp3');
                     });
                 });
             });
         }
-        
+
     });
 
 });
