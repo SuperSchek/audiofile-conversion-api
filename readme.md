@@ -10,8 +10,8 @@ The following enviroment variables should be set:
 Request should be posted to /convert. It needs the following properties in the body:
 ```javascript
 {
-    audio: [AUDIO FILE]
-    category: [PODCAST CATEGORY]
-    name: [NAME OF EPISODE]
+    audio: [AUDIO FILE | .mp3 or .m4a]
+    category: [PODCAST CATEGORY | string]
+    name: [NAME OF EPISODE | string]
 }
 ```
