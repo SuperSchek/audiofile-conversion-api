@@ -26,6 +26,36 @@ app.listen(port, () => {
          res.send('Joe!');
     });
 
+    app.post('/deploy', (req, res) => {
+      console.log(req.body.pusher.name + ' just pushed to ' + req.body.repository.name);
+
+      if (process.env.NODE_ENV == 'production') {
+        console.log('Pulling code from GitHub...');
+
+        // Reset any local changes
+        exec('git -C ~/Node/filmerds-podcast-conversion-api reset --hard', execCallback);
+
+        // and ditch any locally added files
+        exec('git -C ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
+
+        // now pull down the latest
+        exec('git -C ~/Node/filmerds-podcast-conversion-api pull -f', execCallback);
+
+        // Run npm install with --production
+        exec('npm -C ~/Node/filmerds-podcast-conversion-api install --production', execCallback);
+
+        // and run tsc
+        exec('tsc ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
+      } else {
+        console.log('Not running on production. Not pulling latest code from GitHub.');
+      }
+    });
+
+    function execCallback(err, stdout, stderr) {
+      if(stdout) console.log(stdout);
+      if(stderr) console.log(stderr);
+    };
+
     app.post('/convert', (req, res) => {
         // Download file from post request to server.
         let getFile = function(data) {
