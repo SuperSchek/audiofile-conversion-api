@@ -21,6 +21,11 @@ app.use(fileUpload());
 app.listen(port, () => {
     console.log('API is running on: ' + port);
 
+    app.get('/test', (req, res) => {
+         console.log('joe');
+         res.send('Joe!');
+    });
+
     app.post('/convert', (req, res) => {
         // Download file from post request to server.
         let getFile = function(data) {
