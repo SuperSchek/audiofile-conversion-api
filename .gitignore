@@ -1,5 +1,7 @@
 node_modules/
 
+Conversion-API.log
+
 *.mp3
 *.m4a
 
