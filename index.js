@@ -8,11 +8,6 @@ const express = require('express'),
       app = express(),
       port = process.env.PORT || 3000;
 
-// Load env vars from .env file if not in production.
-if (process.env.NODE_ENV !== 'production') {
-    require('dotenv').load();
-}
-
 const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
 const AWS_S3_USER_KEY = process.env.AWS_S3_USER_KEY;
 const AWS_S3_USER_SECRET = process.env.AWS_S3_USER_SECRET;
@@ -31,29 +26,23 @@ app.listen(port, () => {
     });
 
     app.post('/deploy', (req, res) => {
-      console.log(req.body.test);
       console.log(req.body.pusher.name + ' just pushed to ' + req.body.repository.name);
+      console.log('Pulling code from GitHub...');
 
-      if (process.env.NODE_ENV == 'production') {
-        console.log('Pulling code from GitHub...');
+      // Reset any local changes
+      exec('git -C ~/Node/filmerds-podcast-conversion-api reset --hard', execCallback);
 
-        // Reset any local changes
-        exec('git -C ~/Node/filmerds-podcast-conversion-api reset --hard', execCallback);
+      // and ditch any locally added files
+      exec('git -C ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
 
-        // and ditch any locally added files
-        exec('git -C ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
+      // now pull down the latest
+      exec('git -C ~/Node/filmerds-podcast-conversion-api pull -f', execCallback);
 
-        // now pull down the latest
-        exec('git -C ~/Node/filmerds-podcast-conversion-api pull -f', execCallback);
+      // Run npm install with --production
+      exec('npm -C ~/Node/filmerds-podcast-conversion-api install --production', execCallback);
 
-        // Run npm install with --production
-        exec('npm -C ~/Node/filmerds-podcast-conversion-api install --production', execCallback);
-
-        // and run tsc
-        exec('tsc ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
-      } else {
-        console.log('Not running on production. Not pulling latest code from GitHub.');
-      }
+      // and run tsc
+      exec('tsc ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
     });
 
     function execCallback(err, stdout, stderr) {
