@@ -44,6 +44,8 @@ app.listen(port, () => {
 
       // and run tsc
       exec('tsc ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
+
+      exec('sudo reboot', execCallback);
     });
 
     function execCallback(err, stdout, stderr) {
