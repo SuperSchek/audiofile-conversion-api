@@ -22,8 +22,8 @@ app.listen(port, () => {
     console.log('API is running on: ' + port);
 
     app.get('/test', (req, res) => {
-         console.log('joe! Dit bericht is via autodeploy veranderd!');
-         res.send('Joe! Dit bericht is via autodeploy veranderd!');
+         console.log('joe! Autodeploy test!!');
+         res.send('Joe! Autodeploy test!!');
     });
 
     app.post('/deploy', (req, res) => {
