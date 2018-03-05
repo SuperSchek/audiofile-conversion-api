@@ -2,6 +2,7 @@ const express = require('express'),
       ffmpeg = require('fluent-ffmpeg'),
       path = require('path'),
       fileUpload = require('express-fileupload'),
+      bodyParser = require('body-parser'),
       fs = require('fs'),
       AWS = require('aws-sdk'),
       app = express(),
@@ -16,6 +17,9 @@ const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
 const AWS_S3_USER_KEY = process.env.AWS_S3_USER_KEY;
 const AWS_S3_USER_SECRET = process.env.AWS_S3_USER_SECRET;
 
+// app.use(fileUpload());
+
+app.use(bodyParser());
 app.use(fileUpload());
 
 app.listen(port, () => {
@@ -27,6 +31,7 @@ app.listen(port, () => {
     });
 
     app.post('/deploy', (req, res) => {
+      console.log(req.body.test);
       console.log(req.body.pusher.name + ' just pushed to ' + req.body.repository.name);
 
       if (process.env.NODE_ENV == 'production') {
