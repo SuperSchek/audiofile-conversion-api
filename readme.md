@@ -15,3 +15,5 @@ Request should be posted to /convert. It needs the following properties in the b
     name: [NAME OF EPISODE | string]
 }
 ```
+
+Now also contains a /deploy endpoint. 
