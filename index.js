@@ -2,56 +2,29 @@ const express = require('express'),
       ffmpeg = require('fluent-ffmpeg'),
       path = require('path'),
       fileUpload = require('express-fileupload'),
-      bodyParser = require('body-parser'),
-      exec = require('exec'),
       fs = require('fs'),
       AWS = require('aws-sdk'),
       app = express(),
       port = process.env.PORT || 3000;
 
+// Load env vars from .env file if not in production.
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').load();
+}
+
 const AWS_S3_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME;
 const AWS_S3_USER_KEY = process.env.AWS_S3_USER_KEY;
 const AWS_S3_USER_SECRET = process.env.AWS_S3_USER_SECRET;
 
-// app.use(fileUpload());
-
-app.use(bodyParser());
 app.use(fileUpload());
 
 app.listen(port, () => {
     console.log('API is running on: ' + port);
 
     app.get('/test', (req, res) => {
-         console.log('joe! Autodeploy test!!');
-         res.send('Joe! Autodeploy test!!');
+         console.log('joe');
+         res.send('Joe!');
     });
-
-    app.post('/deploy', (req, res) => {
-      console.log(req.body.pusher.name + ' just pushed to ' + req.body.repository.name);
-      console.log('Pulling code from GitHub...');
-
-      // Reset any local changes
-      exec('git -C ~/Node/filmerds-podcast-conversion-api reset --hard', execCallback);
-
-      // and ditch any locally added files
-      exec('git -C ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
-
-      // now pull down the latest
-      exec('git -C ~/Node/filmerds-podcast-conversion-api pull -f', execCallback);
-
-      // Run npm install with --production
-      exec('npm -C ~/Node/filmerds-podcast-conversion-api install --production', execCallback);
-
-      // and run tsc
-      exec('tsc ~/Node/filmerds-podcast-conversion-api clean -df', execCallback);
-
-      exec('sudo reboot', execCallback);
-    });
-
-    function execCallback(err, stdout, stderr) {
-      if(stdout) console.log(stdout);
-      if(stderr) console.log(stderr);
-    };
 
     app.post('/convert', (req, res) => {
         // Download file from post request to server.
